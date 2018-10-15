@@ -1,16 +1,40 @@
 {% extends "catalog/base.html" %}
 
 {% block content %}
-  <h1>Book List</h1>
-  {% if book_list %}
-  <ul>
+<h1>Book List</h1>
+{% if book_list %}
+<ul>
     {% for book in book_list %}
-      <li>
+    <li>
         <a href="{{ book.get_absolute_url }}">{{ book.title }}</a> ({{book.author}})
-      </li>
+    </li>
     {% endfor %}
-  </ul>
-  {% else %}
+
+    {% else %}
     <p>There are no books in the library.</p>
-  {% endif %}       
+    {% endif %}
+</ul>
+
+{% if book_list.has_other_pages %}
+<ul class="pagination">
+    {% if book_list.has_previous %}
+    <li><a href="?page={{ book_list.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+    <li class="disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in book_list.paginator.page_range %}
+    {% if book_list.number == i %}
+    <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+    {% else %}
+    <li><a href="?page={{ i }}">{{ i }}</a></li>
+    {% endif %}
+    {% endfor %}
+    {% if book_list.has_next %}
+    <li><a href="?page={{ book_list.next_page_number }}">&raquo;</a></li>
+    {% else %}
+    <li class="disabled"><span>&raquo;</span></li>
+    {% endif %}
+</ul>
+{% endif %}
+
 {% endblock %}

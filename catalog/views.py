@@ -11,6 +11,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import requests
 
 
@@ -50,21 +51,47 @@ def index(request):
     return render(request, 'catalog/index.html', context=context)
 
 
-class BookListView(generic.ListView):
-    model = Book
-    template_name = 'catalog/book_list.html'  # Specify your own template name/location
-    paginate_by = 10
+# class BookListView(generic.ListView):
+#     model = Book
+#     template_name = 'catalog/book_list.html'  # Specify your own template name/location
+#     paginate_by = 10
+#
+#     def get_queryset(self):
+#         # return Book.objects.filter(title__icontains='expanse')[:5]
+#         return Book.objects.filter()[:5]
+#
+#     # def get_context_data(self, **kwargs):
+#     #     # Call the base implementation first to get the context
+#     #     context = super(BookListView, self).get_context_data(**kwargs)
+#     #     # Create any data and add it to the context
+#     #     context['some_data'] = 'This is just some data'
+#     #     return context
 
-    def get_queryset(self):
-        # return Book.objects.filter(title__icontains='expanse')[:5]
-        return Book.objects.filter()[:5]
 
-    # def get_context_data(self, **kwargs):
-    #     # Call the base implementation first to get the context
-    #     context = super(BookListView, self).get_context_data(**kwargs)
-    #     # Create any data and add it to the context
-    #     context['some_data'] = 'This is just some data'
-    #     return context
+def book_list_view(request):
+    # find the latest five entries
+    book_list = Book.objects.filter()[:5]
+    # Search by input
+    search_term = request.GET.get("search", None)
+    if search_term is not None:
+        book_list = Book.objects.filter(title__icontains=search_term)
+
+    # Pagination
+    page = request.GET.get('page', 1)
+
+    paginator = Paginator(book_list, 10)
+    try:
+        book_list = paginator.page(page)
+    except PageNotAnInteger:
+        book_list = paginator.page(1)
+    except EmptyPage:
+        book_list = paginator.page(paginator.num_pages)
+
+    context = {
+        "book_list": book_list,
+    }
+
+    return render(request, 'catalog/book_list.html', context=context)
 
 
 class AuthorListView(generic.ListView):
