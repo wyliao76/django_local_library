@@ -17,6 +17,7 @@
 
           {% if perms.catalog.can_mark_returned %}
           - <a href="{% url 'renew-book-librarian' bookinst.id %}">Renew</a>
+          - <a href="{% url 'bookinstance_return' bookinst.id %}">Return it</a>
           {% endif %}
 
       </li>

@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  {% block title %}<title>Local Library</title>{% endblock %}
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-   {% load static %}
-   <link rel="stylesheet" type="text/css" href="{% static 'catalog/css/bootstrap.min.css' %}">
-   <link rel="stylesheet" type="text/css" href="{% static 'catalog/css/style.css' %}">
+    {% block title %}<title>Local Library</title>{% endblock %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'catalog/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'catalog/css/style.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="{% static 'catalog/js/bootstrap.min.js' %}"></script>
 </head>
 <body>
 <div>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <a class="navbar-brand" href="#">Navbar</a>
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+  <a class="navbar-brand" href="{% url 'index' %}">Local Library</a>
+
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
           aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
+        
   <div class="collapse navbar-collapse" id="navbarNav">
     <ul class="navbar-nav">
       <li class="nav-item active">
@@ -26,13 +30,14 @@
           <a class="nav-link" href="{% url 'profile' user.username %}">Profile <span class="sr-only">(current)</span></a>
           {% endif %}
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">About</a>
+      <li class="nav-item active">
+          <a class="nav-link" href="{% url 'about' %}">About <span class="sr-only">(current)</span></a>
       </li>
     </ul>
   </div>
 </nav>
 </div>
+
   <div class="container-fluid">
     <div class="row">
       <div class="col-sm-2">
@@ -55,6 +60,7 @@
                 <li><a href="{% url 'all-borrowed' %}">All borrowed</a></li>
                 <li><a href="{% url 'book_create' %}">Create book</a></li>
                 <li><a href="{% url 'author_create' %}">Create author</a></li>
+                <li><a href="{% url 'bookinstance_create' %}">Create copy</a></li>
                 {% endif %}
             {% else %}
             <li><a href="{% url 'login'%}">Login</a></li>

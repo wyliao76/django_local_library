@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
 
+# not used
 class RenewBookForm(forms.Form):
     renewal_date = forms.DateField(help_text="Enter a date between now and next 4 weeks (default 3).")
 
@@ -48,19 +49,7 @@ class RenewBookModelForm(forms.ModelForm):
         help_texts = {'due_back': _('Enter a date between now and 4 weeks (default 3).')}
 
 
-class RegistrationForm(UserCreationForm):
-    first_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
-    last_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
-    email = forms.EmailField(max_length=250, required=False, help_text='Optional.')
-    portrait = forms.FileField(required=False, help_text='Upload a portrait image if you like.')
-
-    class Meta:
-        model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2', 'portrait']
-
-
 class BorrowBookModelForm(forms.ModelForm):
-
     def clean_due_back(self):
         data = self.cleaned_data['due_back']
 
@@ -77,6 +66,17 @@ class BorrowBookModelForm(forms.ModelForm):
 
     class Meta:
         model = BookInstance
-        fields = ['borrower', 'due_back', 'status']
+        fields = ['due_back', ]
         labels = {'due_back': _('Due on:')}
-        help_texts = {'due_back': _('Enter a date between now and 4 weeks (default 3).')}
+        help_texts = {'due_back': _('Default 3 weeks.')}
+
+
+class RegistrationForm(UserCreationForm):
+    first_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
+    last_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
+    email = forms.EmailField(max_length=250, required=False, help_text='Optional.')
+    portrait = forms.FileField(required=False, help_text='Upload a portrait image if you like.')
+
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2', 'portrait']

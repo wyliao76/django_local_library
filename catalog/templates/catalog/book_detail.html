@@ -1,7 +1,7 @@
 {% extends "catalog/base.html" %}
 
 {% block content %}
-  <h1>Title: {{ book.title }}</h1>
+  <h1>{{ book.title }}</h1>
 
   <p><strong>Author:</strong> <a href="{% url 'author-detail' book.author.pk %}">{{ book.author }}</a></p>
   <p><strong>Summary:</strong> {{ book.summary }}</p>
@@ -23,8 +23,12 @@
       <hr>
       <p class="{% if copy.status == 'a' %}text-success{% elif copy.status == 'm' %}text-danger{% else %}
       text-warning{% endif %}">{{ copy.get_status_display }}
-          {% if copy.status == 'a' %}
-          <a href="{% url 'book_borrow' copy.id %}">Borrow this one!</a>
+          {% if perms.catalog.can_mark_returned %}
+              {% if copy.status == 'a' %}
+              <a href="{% url 'bookinstance_borrow' copy.id %}">Borrow this one!</a>
+              {% elif copy.status == 'o' %}
+              <a href="{% url 'bookinstance_return' copy.id %}"> - Return it</a>
+              {% endif %}
           {% endif %}
       </p>
       {% if copy.status == 'o' %}
@@ -32,6 +36,9 @@
       {% endif %}
       <p><strong>Imprint:</strong> {{copy.imprint}}</p>
       <p class="text-muted"><strong>Id:</strong> {{copy.id}}</p>
+      {% if perms.catalog.can_mark_returned %}
+      <P><a href="{% url 'bookinstance_delete' copy.id %}">Delete copy</a></P>
+      {% endif %}
     {% endfor %}
   </div>
 {% endblock %}

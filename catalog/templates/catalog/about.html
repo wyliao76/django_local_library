@@ -1,0 +1,21 @@
+{% extends "catalog/base.html" %}
+{% load static %}
+{% block title %}<title>About</title>{% endblock %}
+{% block content %}
+<div>
+    <h1>About the developer</h1>
+    <P>Hi, my name is Will Liao.</P>
+    <P>I am a junior backend engineer with some experience in Django framework.</P>
+    <P>By developing this website, I also have learned some basic of Ubuntu, gunicorn, nginx and postgresql.</P>
+    <P>Currently, I am looking for a backend developer position.</P>
+    <P>If you're interested, you can visit my
+        <a href="">Cakeresume</a>
+        and
+        <a href="https://www.linkedin.com/in/wei-yu-will-liao-a32353141">Linkedin</a>
+    </P>
+    <P>Or reach me via wyliao76@gmail.com</P>
+
+    <img src="{% static 'catalog/images/me.jpg' %}" alt="My picture">
+</div>
+
+{% endblock %}

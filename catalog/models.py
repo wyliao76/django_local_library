@@ -27,7 +27,7 @@ class Language(models.Model):
         help_text="Enter the language of the book (e.g. English)")
 
     def __str__(self):
-        """String for representing the Model object."""
+        """Full name for Language object in admin."""
         return self.get_name_display()
 
 
@@ -152,6 +152,7 @@ class Profile(models.Model):
         return reverse('account/profile', args=[str(self.user)])
 
 
+# Sent a signal to Profile model to create profile
 @receiver(post_save, sender=User)
 def update_user_profile(sender, instance, created, **kwargs):
     if created:

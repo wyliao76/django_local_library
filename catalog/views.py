@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Genre, Book, BookInstance, Author, User, Profile
+from catalog.models import Genre, Book, BookInstance, Author, Profile
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required, login_required
@@ -10,6 +10,7 @@ from catalog.forms import RenewBookForm, RenewBookModelForm, RegistrationForm, B
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
+from django.contrib.auth.models import User, Group
 import requests
 
 
@@ -112,6 +113,39 @@ class AllLoanedBooksListView(PermissionRequiredMixin, generic.ListView):
         return BookInstance.objects.filter(status__exact='o').order_by('due_back')
 
 
+class BookInstanceCreate(PermissionRequiredMixin, CreateView):
+    model = BookInstance
+    fields = ['book', 'imprint', 'status']
+    initial = {'status': 'a'}
+    success_url = reverse_lazy('books')
+    permission_required = 'catalog.can_mark_returned'
+
+
+class BookInstanceDelete(PermissionRequiredMixin, DeleteView):
+    model = BookInstance
+    success_url = reverse_lazy('books')
+    permission_required = 'catalog.can_mark_returned'
+
+
+class BookInstanceReturn(PermissionRequiredMixin, UpdateView):
+    model = BookInstance
+    fields = ['status', ]
+    initial = {'status': 'a', 'due_back': '', }
+    success_url = reverse_lazy('all-borrowed')
+    permission_required = 'catalog.can_mark_returned'
+
+# Replaced with function based view as practice
+# class BookInstanceBorrow(PermissionRequiredMixin, UpdateView):
+#     proposed_renewal_date = datetime.date.today() + datetime.timedelta(weeks=3)
+#
+#     model = BookInstance
+#     fields = ['due_back', ]
+#     initial = {'status': 'o', 'due_back': proposed_renewal_date, }
+#     success_url = reverse_lazy('all-borrowed')
+#     permission_required = 'catalog.can_mark_returned'
+#     template_name = "catalog/book_borrow.html"
+
+
 @permission_required('catalog.can_mark_returned')
 def renew_book_librarian(request, pk):
     """View function for renewing a specific BookInstance by librarian."""
@@ -145,6 +179,43 @@ def renew_book_librarian(request, pk):
     return render(request, 'catalog/book_renew_librarian.html', context)
 
 
+# This is a function based view for my practice
+@permission_required('catalog.can_mark_returned')
+def book_borrow(request, pk):
+    """View function for changing status of a specific BookInstance by user."""
+    book_instance = get_object_or_404(BookInstance, pk=pk)
+
+    # If this is a POST request then process the Form data
+    if request.method == 'POST':
+
+        # Create a form instance and populate it with data from the request (binding):
+        book_borrow_form = BorrowBookModelForm(request.POST)
+
+        # Check if the form is valid:
+        if book_borrow_form.is_valid():
+            # process the data in form.cleaned_data as required (here we just write it to the model due_back field)
+            book_instance.due_back = book_borrow_form.cleaned_data['due_back']
+            book_instance.borrower = request.user
+            book_instance.status = 'o'
+            book_instance.save()
+
+            # redirect to a new URL:
+            return HttpResponseRedirect(reverse('all-borrowed'))
+
+    # If this is a GET (or any other method) create the default form.
+    else:
+        proposed_renewal_date = datetime.date.today() + datetime.timedelta(weeks=3)
+        book_borrow_form = BorrowBookModelForm(initial={'due_back': proposed_renewal_date,
+                                                        })
+
+    context = {
+        'form': book_borrow_form,
+        'book_instance': book_instance,
+    }
+
+    return render(request, 'catalog/book_borrow.html', context)
+
+
 class AuthorCreate(PermissionRequiredMixin, CreateView):
     model = Author
     fields = '__all__'
@@ -169,7 +240,6 @@ class BookCreate(PermissionRequiredMixin, CreateView):
     model = Book
     fields = '__all__'
     permission_required = 'catalog.can_mark_returned'
-    template_name = 'catalog/book_create.html'
 
 
 class BookUpdate(PermissionRequiredMixin, UpdateView):
@@ -203,6 +273,8 @@ class RegistrationView(generic.View):
             user = form.save()
             user.refresh_from_db()  # load the profile instance created by the signal
             user.profile.portrait = form.cleaned_data.get('portrait')
+            # get default group(Library Members) and add user to the group
+            user.groups.add(Group.objects.get(name="Library Members"))
             user.save()
             username = form.cleaned_data['username']
             password = form.cleaned_data['password1']
@@ -236,39 +308,4 @@ def get_user_profile(request, username):
     }
 
     return render(request, 'catalog/user_detail.html', context=context)
-
-
-@permission_required('catalog.can_mark_returned')
-def book_borrow(request, pk):
-    """View function for changing status of a specific BookInstance by user."""
-    book_instance = get_object_or_404(BookInstance, pk=pk)
-
-    # If this is a POST request then process the Form data
-    if request.method == 'POST':
-
-        # Create a form instance and populate it with data from the request (binding):
-        book_borrow_form = BorrowBookModelForm(request.POST)
-
-        # Check if the form is valid:
-        if book_borrow_form.is_valid():
-            # process the data in form.cleaned_data as required (here we just write it to the model due_back field)
-            book_instance.due_back = book_borrow_form.cleaned_data['due_back']
-            book_instance.borrower = book_borrow_form.cleaned_data['borrower']
-            book_instance.status = 'o'
-            book_instance.save()
-
-            # redirect to a new URL:
-            return HttpResponseRedirect(reverse('my-borrowed'))
-
-    # If this is a GET (or any other method) create the default form.
-    else:
-        proposed_renewal_date = datetime.date.today() + datetime.timedelta(weeks=3)
-        book_borrow_form = BorrowBookModelForm(initial={'due_back': proposed_renewal_date})
-
-    context = {
-        'form': book_borrow_form,
-        'book_instance': book_instance,
-    }
-
-    return render(request, 'catalog/book_borrow.html', context)
 
