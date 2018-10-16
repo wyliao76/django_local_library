@@ -56,7 +56,7 @@
                     </a>
                 </li>
             </ul>
-            {% if request.path != "/catalog/books/" %}
+            {% if request.path == "/catalog/" %}
             <form class="form-inline" action="books" method="get">
                 <input class="form-control mr-sm-2" type="text" placeholder="Search" name="search">
                 <button class="btn btn-success" type="submit">Search</button>
