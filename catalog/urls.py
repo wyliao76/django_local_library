@@ -7,7 +7,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('about/', TemplateView.as_view(template_name='catalog/about.html'), name='about'),
     path('registration', views.RegistrationView.as_view(), name='registration'),
-    #path('books/', views.BookListView.as_view(), name='books'),
+    # path('books/', views.BookListView.as_view(), name='books'),
     path('books/', views.book_list_view, name='books'),
     path('authors/', views.AuthorListView.as_view(), name='authors'),
     path('book/<int:pk>', views.BookDetailView.as_view(), name='book-detail'),

@@ -37,6 +37,11 @@ def index(request):
     num_visits = request.session.get('num_visits', 0)
     request.session['num_visits'] = num_visits + 1
 
+    key = 'bd2696401694c18bb310ee3c493bc56d'
+
+    response = requests.get('http://api.ipstack.com/'+get_client_ip(request)+'?access_key='+key)
+    geodata = response.json()
+
     context = {
         'num_books': num_books,
         'num_instances': num_instances,
@@ -45,10 +50,21 @@ def index(request):
         'num_books_expanse': num_books_expanse,
         'num_genres': num_genres,
         'num_visits': num_visits,
+        'ip': geodata['ip'],
+        'country': geodata['country_name'],
     }
 
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'catalog/index.html', context=context)
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 
 # class BookListView(generic.ListView):
