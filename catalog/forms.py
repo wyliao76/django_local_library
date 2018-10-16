@@ -72,6 +72,7 @@ class BorrowBookModelForm(forms.ModelForm):
 
 
 class RegistrationForm(UserCreationForm):
+    """For user creation with portrait"""
     first_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
     last_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
     email = forms.EmailField(max_length=250, required=False, help_text='Optional.')

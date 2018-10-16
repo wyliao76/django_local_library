@@ -5,7 +5,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.contrib.auth.decorators import permission_required, login_required
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
-import datetime, os
+import datetime
+import os
 from catalog.forms import RenewBookForm, RenewBookModelForm, RegistrationForm, BorrowBookModelForm
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth import login, authenticate
@@ -40,7 +41,9 @@ def index(request):
     num_visits = request.session.get('num_visits', 0)
     request.session['num_visits'] = num_visits + 1
 
-    response = requests.get('http://api.ipstack.com/'+get_client_ip(request)+'?access_key='+os.environ["ipAPIKey"])
+    # Get response from geolocation API
+    ip = get_client_ip(request)
+    response = requests.get('http://api.ipstack.com/' + ip + '?access_key=' + os.environ["ipAPIKey"])
     geodata = response.json()
 
     context = {
@@ -53,6 +56,7 @@ def index(request):
         'num_visits': num_visits,
         'ip': geodata['ip'],
         'country': geodata['country_name'],
+        'city': geodata['city']
     }
 
     # Render the HTML template index.html with the data in the context variable
@@ -67,7 +71,7 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
-
+# Replaced by book_list_view to add search functionality
 # class BookListView(generic.ListView):
 #     model = Book
 #     template_name = 'catalog/book_list.html'  # Specify your own template name/location
@@ -309,6 +313,7 @@ class BookDelete(PermissionRequiredMixin, DeleteView):
 
 
 class RegistrationView(generic.View):
+    """View for creating user with portrait"""
     form_class = RegistrationForm
     template_name = 'registration/registration.html'
 
@@ -353,6 +358,7 @@ class RegistrationView(generic.View):
 # This has security breach - url.
 @login_required()
 def get_user_profile(request, username):
+    """Return user's profile"""
     user = User.objects.get(username=username)
     profile = Profile.objects.get(user=user)
     context = {

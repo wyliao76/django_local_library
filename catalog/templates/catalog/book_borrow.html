@@ -1,17 +1,17 @@
 {% extends "catalog/base.html" %}
 
 {% block content %}
-  <h1>Book Title: {{ book_instance.book }}</h1>
-  <h2>Borrower: {{ request.user }}</h2>
-  <h2>Imprint: {{ book_instance.imprint }}</h2>
-  <h3>id: {{ book_instance.id }}</h3>
-  <br>
+<h1>Book Title: {{ book_instance.book }}</h1>
+<h2>Borrower: {{ request.user }}</h2>
+<h2>Imprint: {{ book_instance.imprint }}</h2>
+<h3>id: {{ book_instance.id }}</h3>
+<br>
 
-  <form action="" method="post">
+<form action="" method="post">
     {% csrf_token %}
     <table>
-    {{ form.as_p }}
+        {{ form.as_p }}
     </table>
     <input type="submit" value="Submit">
-  </form>
+</form>
 {% endblock %}
