@@ -253,7 +253,7 @@ def book_borrow(request, pk):
         if book_borrow_form.is_valid():
             # process the data in form.cleaned_data as required (here we just write it to the model due_back field)
             book_instance.due_back = book_borrow_form.cleaned_data['due_back']
-            book_instance.borrower = request.user
+            book_instance.borrower = book_borrow_form.cleaned_data['borrower']
             book_instance.status = 'o'
             book_instance.save()
 

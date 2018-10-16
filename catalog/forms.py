@@ -66,7 +66,7 @@ class BorrowBookModelForm(forms.ModelForm):
 
     class Meta:
         model = BookInstance
-        fields = ['due_back', ]
+        fields = ['borrower', 'due_back', ]
         labels = {'due_back': _('Due on:')}
         help_texts = {'due_back': _('Default 3 weeks.')}
 
