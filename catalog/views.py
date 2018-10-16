@@ -90,6 +90,7 @@ def get_client_ip(request):
 
 
 def book_list_view(request):
+    """Book ListView with search functionality"""
     # find the latest five entries
     book_list = Book.objects.filter()[:5]
     # Search by input
