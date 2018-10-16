@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.contrib.auth.decorators import permission_required, login_required
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
-import datetime
+import datetime, os
 from catalog.forms import RenewBookForm, RenewBookModelForm, RegistrationForm, BorrowBookModelForm
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth import login, authenticate
@@ -13,6 +13,9 @@ from django.contrib import messages
 from django.contrib.auth.models import User, Group
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import requests
+from catalog.serializers import BookSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 
 def index(request):
@@ -37,9 +40,7 @@ def index(request):
     num_visits = request.session.get('num_visits', 0)
     request.session['num_visits'] = num_visits + 1
 
-    key = ''
-
-    response = requests.get('http://api.ipstack.com/'+get_client_ip(request)+'?access_key='+key)
+    response = requests.get('http://api.ipstack.com/'+get_client_ip(request)+'?access_key='+os.environ["ipAPIKey"])
     geodata = response.json()
 
     context = {
@@ -110,13 +111,13 @@ def book_list_view(request):
     return render(request, 'catalog/book_list.html', context=context)
 
 
-class AuthorListView(generic.ListView):
-    model = Author
-    template_name = 'catalog/author_list.html'
-    paginate_by = 5
+class BookListViewAPI(APIView):
+    """Return API of Book model"""
 
-    def get_queryset(self):
-        return Author.objects.all()
+    def get(self, request):
+        book_list = Book.objects.all()
+        serializer = BookSerializer(book_list, many=True)
+        return Response(serializer.data)
 
 
 class BookDetailView(generic.DetailView):
@@ -125,6 +126,15 @@ class BookDetailView(generic.DetailView):
     def book_detail_view(request, primary_key):
         book = get_object_or_404(Book, pk=primary_key)
         return render(request, 'catalog/book_detail.html', context={'book': book})
+
+
+class AuthorListView(generic.ListView):
+    model = Author
+    template_name = 'catalog/author_list.html'
+    paginate_by = 5
+
+    def get_queryset(self):
+        return Author.objects.all()
 
 
 class AuthorDetailView(generic.DetailView):

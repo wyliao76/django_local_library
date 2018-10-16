@@ -44,16 +44,29 @@
                     {% endif %}
                 </li>
                 <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'booksAPI' %}">BooksAPI
+                        <span class="sr-only">(current)</span>
+                        <i class="fas fa-clipboard-list" style="color:Gold"></i>&nbsp;
+                    </a>
+                </li>
+                <li class="nav-item active">
                     <a class="nav-link" href="{% url 'about' %}">About
                         <span class="sr-only">(current)</span>
                         <i class="far fa-address-card" style="color:Fuchsia"></i>&nbsp;
                     </a>
                 </li>
             </ul>
+            {% if request.path != "/catalog/books/" %}
+            <form class="form-inline" action="books" method="get">
+                <input class="form-control mr-sm-2" type="text" placeholder="Search" name="search">
+                <button class="btn btn-success" type="submit">Search</button>
+            </form>
+            {% else %}
             <form class="form-inline" action="" method="get">
                 <input class="form-control mr-sm-2" type="text" placeholder="Search" name="search">
                 <button class="btn btn-success" type="submit">Search</button>
             </form>
+            {% endif %}
         </div>
     </nav>
 </div>

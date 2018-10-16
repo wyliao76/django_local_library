@@ -1,6 +1,7 @@
 from django.urls import path
 from catalog import views
 from django.views.generic import TemplateView
+from rest_framework.urlpatterns import format_suffix_patterns
 
 
 urlpatterns = [
@@ -27,4 +28,5 @@ urlpatterns = [
     path('author/<int:pk>/update/', views.AuthorUpdate.as_view(), name='author_update'),
     path('author/<int:pk>/delete/', views.AuthorDelete.as_view(), name='author_delete'),
     path('account/profile/<username>', views.get_user_profile, name='profile'),
+    path('booksAPI/', views.BookListViewAPI.as_view(), name='booksAPI')
 ]
