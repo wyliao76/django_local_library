@@ -37,7 +37,7 @@ def index(request):
     num_visits = request.session.get('num_visits', 0)
     request.session['num_visits'] = num_visits + 1
 
-    key = 'bd2696401694c18bb310ee3c493bc56d'
+    key = ''
 
     response = requests.get('http://api.ipstack.com/'+get_client_ip(request)+'?access_key='+key)
     geodata = response.json()
