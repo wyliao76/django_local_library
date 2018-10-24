@@ -41,10 +41,17 @@ def index(request):
     num_visits = request.session.get('num_visits', 0)
     request.session['num_visits'] = num_visits + 1
 
-    # Get response from geolocation API
-    ip = get_client_ip(request)
-    response = requests.get('http://api.ipstack.com/' + ip + '?access_key=' + os.environ["ipAPIKey"])
-    geodata = response.json()
+    # check if geodata is cached
+    is_cached = ('geodata' in request.session)
+
+    if not is_cached:
+        # Get response from geolocation API
+        ip = get_client_ip(request)
+        response = requests.get('http://api.ipstack.com/' + ip + '?access_key=' + os.environ["ipAPIKey"])
+        request.session['geodata'] = response.json()
+
+    # get geodata from session if cached
+    geodata = request.session['geodata']
 
     context = {
         'num_books': num_books,
@@ -56,7 +63,7 @@ def index(request):
         'num_visits': num_visits,
         'ip': geodata['ip'],
         'country': geodata['country_name'],
-        'city': geodata['city']
+        'city': geodata['city'],
     }
 
     # Render the HTML template index.html with the data in the context variable
@@ -120,8 +127,15 @@ class BookListViewAPI(APIView):
     """Return API of Book model"""
 
     def get(self, request):
-        book_list = Book.objects.all()
+        is_cached = ('book_list' in request.session)
+
+        if not is_cached:
+            book_list = Book.objects.all()
+        else:
+            book_list = request.session['book_list']
+
         serializer = BookSerializer(book_list, many=True)
+
         return Response(serializer.data)
 
 
